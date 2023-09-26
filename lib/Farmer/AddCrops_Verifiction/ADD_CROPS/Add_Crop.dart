@@ -1,17 +1,26 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:cse499_project/Company/approved_list_button/approved/approved.dart';
-import 'package:cse499_project/Company/approved_list_button/approved/approvedORdecline.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
+import 'package:cse499_project/EthereumService.dart'; // Import your EthereumService.dart
+import 'package:http/http.dart';
+import 'package:web3dart/web3dart.dart';
+import 'package:web_socket_channel/io.dart';
 
 class Farmer_AddCrops extends StatelessWidget {
   Farmer_AddCrops({Key? key}) : super(key: key);
-  TextEditingController _itemHarvestingTime = new TextEditingController();
-  TextEditingController _itemFartilizer = new TextEditingController();
-  TextEditingController _itemId = new TextEditingController();
-  TextEditingController _itemDelivaeryDate = new TextEditingController();
-  TextEditingController _itemName = new TextEditingController();
-  TextEditingController _itemWeight = new TextEditingController();
-  TextEditingController _itemPlace = new TextEditingController();
+  TextEditingController _itemHarvestingTime = TextEditingController();
+  TextEditingController _itemFertilizer = TextEditingController();
+  TextEditingController _itemId = TextEditingController();
+  TextEditingController _itemDeliveryDate = TextEditingController();
+  TextEditingController _itemName = TextEditingController();
+  TextEditingController _itemWeight = TextEditingController();
+  TextEditingController _itemPlace = TextEditingController();
+
+  // EthereumService instance to interact with the Ethereum smart contract
+  final EthereumService ethereumService = EthereumService();
+  // final counter1 = ref.watch(EthereumService.provider).count ;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -49,9 +58,9 @@ class Farmer_AddCrops extends StatelessWidget {
             ),
             SizedBox(height: 32.0),
             TextFormField(
-              controller: _itemDelivaeryDate,
+              controller: _itemDeliveryDate,
               decoration: InputDecoration(
-                labelText: 'Date:DD/MM/YYYY',
+                labelText: 'Date: DD/MM/YYYY',
                 border: OutlineInputBorder(),
               ),
             ),
@@ -65,9 +74,9 @@ class Farmer_AddCrops extends StatelessWidget {
             ),
             SizedBox(height: 32.0),
             TextFormField(
-              controller: _itemFartilizer,
+              controller: _itemFertilizer,
               decoration: InputDecoration(
-                labelText: 'Fartilizer',
+                labelText: 'Fertilizer',
                 border: OutlineInputBorder(),
               ),
             ),
@@ -81,20 +90,79 @@ class Farmer_AddCrops extends StatelessWidget {
             ),
             SizedBox(height: 32.0),
             ElevatedButton(
-              onPressed: () {
-                Map<String, dynamic> data = {
-                  "Food ID": _itemId.text,
-                  "Food name": _itemName.text,
-                  "Food harvesting time": _itemHarvestingTime.text,
-                  "Food Delivery": _itemDelivaeryDate.text,
-                  "Place": _itemPlace.text,
-                  "Fertilizer": _itemFartilizer.text
-                };
-                FirebaseFirestore.instance
-                    .collection("farmer add food")
-                    .add(data);
-                // Navigator.of(context).push(MaterialPageRoute(
-                //     builder: (context) => Company_ApprovedorDecline()));
+              onPressed: () async {
+                // Get the values from text fields
+                String foodId = _itemId.text;
+                String foodName = _itemName.text;
+                String cultivationDate = _itemHarvestingTime.text;
+                String location = _itemPlace.text;
+                String fertilizerType = _itemFertilizer.text;
+
+                try {
+                  // Call the Ethereum smart contract function
+                  await ethereumService.sendTransaction(
+                    foodId,
+                    foodName,
+                    cultivationDate,
+                    location,
+                    fertilizerType,
+                  );
+
+                  // Save data to Firestore
+                  // Map<String, dynamic> data = {
+                  //   "Food ID": foodId,
+                  //   "Food name": foodName,
+                  //   "Food harvesting time": cultivationDate,
+                  //   "Food Delivery": _itemDeliveryDate.text,
+                  //   "Place": location,
+                  //   "Fertilizer": fertilizerType,
+                  // };
+                  //
+                  // await FirebaseFirestore.instance
+                  //     .collection("farmer add food")
+                  //     .add(data);
+
+                  // Show a success dialog or navigate to the next screen
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: Text("Success"),
+                        content: Text("Transaction submitted successfully."),
+                        actions: <Widget>[
+                          TextButton(
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                            child: Text("OK"),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+
+                  // Navigator.of(context).push(MaterialPageRoute(
+                  //     builder: (context) => Company_ApprovedorDecline()));
+                } catch (e) {
+                  // Handle any errors that occur during Ethereum interaction
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: Text("Error"),
+                        content: Text("An error occurred: $e"),
+                        actions: <Widget>[
+                          TextButton(
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                            child: Text("OK"),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                }
               },
               child: Text('Submit'),
             ),

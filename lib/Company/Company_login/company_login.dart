@@ -139,7 +139,7 @@ class _Company_log_in_pageState extends State<Company_log_in_page> {
           .then((uid) => {
                 Fluttertoast.showToast(msg: "Login Successful"),
                 Navigator.of(context).pushReplacement(MaterialPageRoute(
-                    builder: (context) => Company_ApprovedorDecline())),
+                    builder: (context) => Approved_list_button())),
               })
           .catchError((e) {
         Fluttertoast.showToast(msg: e!.message);

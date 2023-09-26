@@ -1,4 +1,3 @@
-import 'package:cse499_project/Company/approved_list_button/approved/approved.dart';
 import 'package:cse499_project/Company/approved_list_button/approved/approvedORdecline.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -33,7 +32,6 @@ class Approved_list_button extends StatelessWidget {
             ElevatedButton(
               onPressed: () {
                 // Handle add crops button press
-                print('Add Crops button pressed');
               },
               child: Text('List'),
             ),

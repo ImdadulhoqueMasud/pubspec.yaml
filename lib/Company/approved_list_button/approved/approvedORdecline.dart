@@ -17,7 +17,7 @@ class Company_ApprovedorDecline extends StatelessWidget {
 
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => Qr_generate()),
+      MaterialPageRoute(builder: (context) => Qr_generate(foodId: foodId)),
     );
   }
 
@@ -34,7 +34,7 @@ class Company_ApprovedorDecline extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Company'),
+        title: Text('industry'),
         centerTitle: true,
       ),
       body: Padding(
